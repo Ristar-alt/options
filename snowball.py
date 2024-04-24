@@ -1,29 +1,33 @@
 import numpy as np
 
+# ===============
+#
+# define the structure to be valuated
 days_in_year = 365.0
-
 bus_days_in_year = 242
 initial_price = 1.0
 ko_days = np.array([20, 40, 60, 80, 100])
 ko_barriers = np.array([1, 1, 1, 1, 1])
-
-ki_barrier = 0.8
-
+ki_barrier = 0.8 * initial_price
 ki_days = np.arange(0, 101, 1, dtype=int)
-
 coupon_rate = 365.0
 ko_coupons = ko_days / days_in_year * coupon_rate * initial_price
+# ===================
 
+# define market dynamics
 spot = 1.0
 rf = 0.00
 b = 0
 vol = 0.2
+# ====
+
 
 df = np.exp(-rf * ki_days / bus_days_in_year)
 
 dt = np.diff(ki_days) / bus_days_in_year
 
 drift = dt * (b - 0.5 * vol * vol)
+drift = np.cumsum(drift)
 
 sim_n = 100000
 ob_size = len(ki_days) - 1
@@ -31,7 +35,9 @@ eps = np.random.normal(0, 1, ob_size * sim_n)
 total_pv = 0
 for k in range(sim_n):
     pv = 0
-    x = drift + vol * np.sqrt(dt) * eps[k*ob_size:(k+1)*ob_size]
+    diffusion = vol * np.sqrt(dt) * eps[k * ob_size:(k + 1) * ob_size]
+    diffusion = np.cumsum(diffusion)
+    x = drift + diffusion
     prices = spot * np.exp(x)
     prices = np.insert(prices, 0, spot)
     ko_flag = False
