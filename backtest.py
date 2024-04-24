@@ -3,6 +3,7 @@ import numpy as np
 
 class Snowball:
     def __init__(self, ko_dates, ko_barriers, ki_barrier):
+
         self.ko_dates = ko_dates
         self.ko_barriers = ko_barriers
         self.ki_barrier = ki_barrier
